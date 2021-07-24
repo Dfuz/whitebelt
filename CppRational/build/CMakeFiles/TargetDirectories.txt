@@ -1,0 +1,3 @@
+/home/vadim/Projects/CppRational/build/CMakeFiles/rebuild_cache.dir
+/home/vadim/Projects/CppRational/build/CMakeFiles/edit_cache.dir
+/home/vadim/Projects/CppRational/build/CMakeFiles/Rational.dir

@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/Rational.dir/main.cpp.o  -o Rational 

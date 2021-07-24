@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/vadim/Projects/CppManipulators/build",
+  "command": "/usr/bin/c++      -std=gnu++11 -o CMakeFiles/Tutorial_iomanip.dir/main.cpp.o -c /home/vadim/Projects/CppManipulators/main.cpp",
+  "file": "/home/vadim/Projects/CppManipulators/main.cpp"
+}
+]

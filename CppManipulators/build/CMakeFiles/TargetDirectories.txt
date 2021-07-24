@@ -1,0 +1,3 @@
+/home/vadim/Projects/CppManipulators/build/CMakeFiles/rebuild_cache.dir
+/home/vadim/Projects/CppManipulators/build/CMakeFiles/edit_cache.dir
+/home/vadim/Projects/CppManipulators/build/CMakeFiles/Tutorial_iomanip.dir

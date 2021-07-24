@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/Tutorial_iomanip.dir/main.cpp.o  -o Tutorial_iomanip 

@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/vadim/Projects/CppRational/build",
+  "command": "/usr/bin/c++    -g   -std=gnu++11 -o CMakeFiles/Rational.dir/main.cpp.o -c /home/vadim/Projects/CppRational/main.cpp",
+  "file": "/home/vadim/Projects/CppRational/main.cpp"
+}
+]

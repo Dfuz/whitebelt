@@ -1,0 +1,3 @@
+/home/vadim/Projects/CppStudents/build/CMakeFiles/rebuild_cache.dir
+/home/vadim/Projects/CppStudents/build/CMakeFiles/edit_cache.dir
+/home/vadim/Projects/CppStudents/build/CMakeFiles/Students_list.dir
