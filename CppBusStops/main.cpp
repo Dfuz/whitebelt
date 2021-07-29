@@ -1,106 +1,124 @@
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <vector>
+#include <set>
 #include <map>
 using namespace std;
- 
-void All_buses(const map<string, vector<string>>& f) { //вывод всех маршрутов
-    if (f.size() == 0) cout << "No buses" << endl; //если размер контейнера = 0, то напишем что ничего нет
-    else { //если что-то есть
-        for (const auto& i : f) { //пролистаем контейнер и напишем, для каждой пары "ключ-значение"
-            cout << "Bus " << i.first << ":"; //название маршрута
-            for (const auto& d : i.second) { //а также перечислим 
-                cout << " " << d; // название остановок
-            }
-            cout << endl;
-        }
+
+// **************** FUNCTIONS ****************************************************
+void AllBuses
+(const map<string, vector<string>>& busMap) 
+{ 
+    if (busMap.size() == 0)
+    {
+        cout << "No buses" << endl;
+        return;
+    }
+    for (const auto& [bus, stops] : busMap)
+    {
+        cout << "Bus " << bus << ":";
+        for (const auto& stop : stops)
+            cout << " " << stop;
+        cout << endl;
     }
 }
-void BusforStop(const string& s, const map<string, vector<string>>& f, const vector<string>& busm) { //вывод названий марштутов для остановки
-    int k = 0; //определитель наличия чего-нибудь
-    vector<string> v;
-    for (const auto& i : f) { //листаем контейнер
-        for (const auto& n : i.second) { //и в каждом массиве значений для каждого ключа
-            if (n == s) { //ищем совпадение с остановкой и, если нашли, 
-                v.push_back(i.first); //запишем "найденный" маршрут в вектор
-                k++; //плюсанули наличие совпадения
-            }
-        }
+
+void BusesForStop
+(const string& stopKey, const map<string, vector<string>>& busMap, const vector<string>& busm) 
+{ 
+    bool found = false;
+    set<string> buses;
+    for (auto const& [bus, stops] : busMap)
+    {
+        if (find(begin(stops), end(stops), stopKey) != end(stops))
+            buses.insert(bus);
     }
-    if (k > 0) { //если есть совпадения
-        for (const auto& w : busm) { //пролистаем общий вектор с маршрутами и для каждого маршрута
-            for (auto z : v) { //будем просматривать вектор "найденных" маршрутов 
-                if (z == w) { //и при совпадении
-                    cout << w << " "; //выводим маршрут
-                } //таким образом у нас будут выведены маршруты в порядке записи командой NEW_BUS
-            }
-        }
+    if (buses.size() == 0)
+    {
+        cout << "No stop" << endl;
+        return;
     }
-    else if (k == 0) cout << "No stop"; //если не нашли совпадение, то так и напишем
+    for (auto const& bus : busm)
+    {
+        if (buses.find(bus) != end(buses))
+            cout << bus << " ";
+    }
     cout << endl;
 }
-void Stopforbus(const string& s, const map<string, vector<string>>& f, const vector<string>& busm) {
-    int l = 0; //переменная для определения наличия нужного маршрута
-    for (auto i : f) { //просматриваем контейнер
-        if (i.first == s) { //если значение ключа совпало с названием маршрута
-            for (auto m : i.second) { // (п.1) то для каждого значения этого ключа
-                cout << "Stop " << m << ":"; //пишем остановку
-                int l2 = 0; //переменная для определения наличия других маршрутов остановки, кроме первоначального
-                vector<string> v;
-                for (auto r : f) { //снова пролистываем контейнер
-                    for (auto n : r.second) { //просматриваем все значения остановок
-                        //и если значение остановки совпало со значением ключа m в п.1, но не равно "введенному" маршруту s
-                        if (n == m && r.first != s) {
-                            v.push_back(r.first); //запишем маршруты в вектор
-                            l2++;
-                        }
-                    }
-                }
-                if (l2 == 0) cout << " no interchange";
-                else if (l2 > 0) {
-                    for (const auto& w : busm) { //пролистаем общий вектор с маршрутами и для каждого маршрута
-                        for (auto z : v) { //будем просматривать вектор "найденных" маршрутов 
-                            if (z == w) { //и при совпадении
-                                cout << " "  << w; //выводим маршрут
-                            } //таким образом у нас будут выведены маршруты в порядке записи командой NEW_BUS
-                        }
-                    }
-                }
-                cout << endl; //с новой строки
-            }
-            l++; //если маршрут нашелся, то плюсуем
-        }
+void StopsForBus
+(const string& busKey, const map<string, vector<string>>& busMap, const vector<string>& busm)
+{
+    if (busMap.find(busKey) == end(busMap))
+    {
+        cout << "No bus" << endl;
+        return;
     }
-    if (l == 0) cout << "No bus" << endl; // если не нашлось маршрутов - так и пишем
+    for (const auto& stop : busMap.at(busKey))
+    {
+        cout << "Stop " << stop << ":";
+        vector<string> alternativeBuses;
+        for (const auto& [bus, stops] : busMap)
+        {
+            if (bus != busKey)
+            {
+                if (find(begin(stops), end(stops), stop) != end(stops))
+                {
+                    alternativeBuses.push_back(bus);
+                }
+            }
+        }
+        if (alternativeBuses.size() == 0) cout << " no interchange";
+        else
+        {
+            for (auto const& bus : busm)
+            {
+                if (find(begin(alternativeBuses), end(alternativeBuses), bus) 
+                    != end(alternativeBuses))
+                {
+                    cout << " " << bus;
+                }
+            }
+        }
+        cout << endl;
+    }
 }
+
+// **************** MAIN ***********************************************************
 int main()
 {
-    int Q;
-    cin >> Q; //узнаем сколько команд будет
-    map<string, vector<string>> bsmap; //создадим контейнер, ключом будет маршрут(строка), а значениями остановки (вектор строк)
+    int commandCount;
+    cin >> commandCount;
+    map<string, vector<string>> bsmap;
     vector<string> busm;
-    for (Q; Q > 0; Q--) { //делаем нужное количество циклов
-        string comand, bus, stop; //заведем нужные переменные
-        cin >> comand; //считываем команду
-        if (comand == "NEW_BUS") { //для этой команды
-            int sc; //количество остановок
-            cin >> bus >> sc; //прочитаем маршрут и количество остановок
+    for (; commandCount > 0; --commandCount) 
+    { 
+        string command, bus, stop; 
+        cin >> command; 
+        if (command == "NEW_BUS") 
+        { 
+            int stopCount; 
+            cin >> bus >> stopCount; 
             busm.push_back(bus);
-            for (sc; sc > 0; sc--) { //и ровно это количество раз
-                cin >> stop; //считаем название новой остановки
-                bsmap[bus].push_back(stop); //и добавим к маршруту
+            for (; stopCount > 0; --stopCount) 
+            { 
+                cin >> stop; 
+                bsmap[bus].push_back(stop); 
             }
         }
-        else if (comand == "BUSES_FOR_STOP") {
+        else if (command == "BUSES_FOR_STOP") 
+        {
             cin >> stop;
-            BusforStop(stop, bsmap, busm); //тут и ниже все происходит в функциях, которые выше
+            BusesForStop(stop, bsmap, busm);
         }
-        else if (comand == "STOPS_FOR_BUS") {
+        else if (command == "ALL_BUSES")
+        {
+            AllBuses(bsmap);
+        }
+        else if (command == "STOPS_FOR_BUS") 
+        {
             cin >> bus;
-            Stopforbus(bus, bsmap, busm);
-        }
-        else if (comand == "ALL_BUSES") {
-            All_buses(bsmap);
+            StopsForBus(bus, bsmap, busm);
         }
     }
     return 0;
