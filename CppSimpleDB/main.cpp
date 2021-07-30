@@ -72,7 +72,6 @@ public:
 		in >> fullDate;
 		stringstream tempStream;
 		tempStream << fullDate;
-		int year = 0, month = 0, day = 0;
 		int dashCount = 1, tempValue = 0;
 		while (tempStream >> tempValue)
 		{
@@ -88,13 +87,14 @@ public:
 			}
 			dashCount = formatChecker(tempStream);
 		}
+        return in;
 	}
 };
 
 bool operator<(const Date& lhs, const Date& rhs)
 {
 	if (lhs.year != rhs.year) return lhs.year < rhs.year;
-	if (lhs.month != rhs.month) return lhs.month < lhs.month;
+    if (lhs.month != rhs.month) return lhs.month < rhs.month;
 	return lhs.day < rhs.day;
 }
 
