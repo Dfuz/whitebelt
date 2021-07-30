@@ -6,7 +6,6 @@
 #include <set>
 using namespace std;
 
-// Комментарии, которые говорят, что именно нужно реализовать в этой программе
 class Rational
 {
 private:
@@ -32,6 +31,7 @@ public:
 
 	Rational(int numerator, int denominator)
 	{
+		if (denominator == 0) throw invalid_argument("Invalid argument");
 		if (numerator == 0)
 		{
 			num = 0;
@@ -58,7 +58,7 @@ public:
 		return den;
 	}
 
-	Rational& operator+(const Rational& rhs) const
+	Rational operator+(const Rational& rhs) const
 	{
 		if (den != rhs.den)
 		{
@@ -66,7 +66,7 @@ public:
 		}
 		else return Rational{num + rhs.num, den};
 	}
-	Rational& operator-(const Rational& rhs) const
+	Rational operator-(const Rational& rhs) const
 	{
 		if (den != rhs.den)
 		{
@@ -74,13 +74,13 @@ public:
 		}
 		else return Rational{num - rhs.num, den};
 	}
-	Rational& operator*(const Rational& rhs) const
+	Rational operator*(const Rational& rhs) const
 	{
 		return Rational{num * rhs.num, den * rhs.den};
 	}
-	Rational& operator/(const Rational& rhs) const
+	Rational operator/(const Rational& rhs) const
 	{
-		if (rhs.num == 0) throw std::overflow_error("Divide by zero exception");
+		if (rhs.num == 0) throw std::domain_error("Division by zero");
 		return Rational{num * rhs.den, den * rhs.num};
 	}
 	friend ostream& operator<<(ostream& out, const Rational& ratio)
@@ -116,38 +116,44 @@ public:
 	}
 };
 
-int main()
+int main() 
 {
+	Rational firstRatio, secondRatio, resultRatio;
+	char operation;
+	const set<char> allowedOperations = {'+', '-', '*', '/' };
+	try
 	{
-		const set<Rational> rs = { {1, 2}, {1, 25}, {3, 4}, {3, 4}, {1, 2} };
-		if (rs.size() != 3) {
-			cout << "Wrong amount of items in the set" << endl;
-			return 1;
-		}
+		cin >> firstRatio;
+		while (cin.peek() == ' ' && cin.peek() != EOF) cin.ignore(1);
+		if (allowedOperations.find(cin.peek()) != end(allowedOperations))
+			cin >> operation;
+		else throw runtime_error("Unallowed operation readed!");
+		cin >> secondRatio;
 
-		vector<Rational> v;
-		for (auto x : rs) {
-			v.push_back(x);
-		}
-		if (v != vector<Rational>{ {1, 25}, { 1, 2 }, { 3, 4 }}) {
-			cout << "Rationals comparison works incorrectly" << endl;
-			return 2;
+		switch (operation)
+		{
+		case '+':
+			resultRatio = firstRatio + secondRatio;
+			break;
+		case '-':
+			resultRatio = firstRatio - secondRatio;
+			break;
+		case '/':
+			resultRatio = firstRatio / secondRatio;
+			break;
+		case '*':
+			resultRatio = firstRatio * secondRatio;
+			break;
+		default:
+			break;
+
 		}
 	}
-
+	catch (exception& ex)
 	{
-		map<Rational, int> count;
-		++count[{1, 2}];
-		++count[{1, 2}];
-
-		++count[{2, 3}];
-
-		if (count.size() != 2) {
-			cout << "Wrong amount of items in the map" << endl;
-			return 3;
-		}
+		cout << ex.what() << endl;
+		return 1;
 	}
-
-	cout << "OK" << endl;
+	cout << resultRatio << endl;
 	return 0;
 }
