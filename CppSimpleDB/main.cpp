@@ -73,10 +73,12 @@ public:
 		stringstream tempStream;
 		tempStream << fullDate;
 		int dashCount = 1, tempValue = 0;
+		bool good = false;
 		while (tempStream >> tempValue)
 		{
 			if (dashCount == 2) dateValues.push(-tempValue);
-			else if (dashCount == 1) dateValues.push(tempValue);
+			else if (dashCount == 1) 
+				dateValues.push(tempValue);
 			else throw invalid_argument(string("Wrong date format: ") + fullDate);
 			if (dateValues.size() == 3)
 			{
@@ -84,10 +86,11 @@ public:
 				auto month = Month(dateValues.front()); dateValues.pop();
 				auto day = Day(dateValues.front()); dateValues.pop();
 				date = Date(day, month, year);
+				good = true;
 			}
 			dashCount = formatChecker(tempStream);
 		}
-		if (tempStream.fail()) throw invalid_argument(string("Wrong date format: ") + fullDate);
+		if ((tempStream.fail() && !tempStream.eof()) || !good) throw invalid_argument(string("Wrong date format: ") + fullDate);
         return in;
 	}
 };
@@ -187,7 +190,7 @@ int main()
 		commandStream >> command;
 		if (commandSet.count(command) < 1 && !command.empty())
 		{
-			cout << "Unknown command: " << command;
+			cout << "Unknown command: " << command << endl;
 			continue;
 		}
 		else
