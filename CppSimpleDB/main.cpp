@@ -87,6 +87,7 @@ public:
 			}
 			dashCount = formatChecker(tempStream);
 		}
+		if (tempStream.fail()) throw invalid_argument(string("Wrong date format: ") + fullDate);
         return in;
 	}
 };
@@ -148,6 +149,7 @@ public:
 				cout << *event;
 				if (event != end(events) - 1) cout << ' ';
 			}
+			cout << endl;
 			return static_cast<int>(eventCount);
 		}
 		return 0;
@@ -206,7 +208,8 @@ int main()
 					commandStream >> date;
 					string event;
 					if (commandStream) commandStream >> event;
-					if (event.empty()) db.DeleteDate(date);
+					if (event.empty())
+						cout << "Deleted " << db.DeleteDate(date) << " events" << endl;
 					else db.DeleteEvent(date, event);
 				}
 				else if (command == "Find")
