@@ -109,7 +109,10 @@ public:
 		if (!stream.eof())
 			throw invalid_argument("Wrong date format: " + date);
 
-		return (Date(Day(day), Month(month), Year(year)));
+        Month monthStruct{month};
+        Year yearStruct{year};
+        Day dayStruct{day};
+        return (Date(dayStruct, monthStruct, yearStruct));
 	}
 };
 
