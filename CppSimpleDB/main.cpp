@@ -106,7 +106,7 @@ public:
 		int day;
 		stream.ignore(1);
 		stream >> day;
-		if (!stream.eof())
+		if (!stream.eof() || stream.fail())
 			throw invalid_argument("Wrong date format: " + date);
 
         Month monthStruct{month};
@@ -235,7 +235,7 @@ int main()
 					commandStream >> dateStr;
 					commandStream >> event;
 					const Date date = Date::ParseDate(dateStr);
-					db.AddEvent(date, event);
+					if (!event.empty()) db.AddEvent(date, event);
 				}
 				else if (command == "Del")
 				{
