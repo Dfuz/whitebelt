@@ -14,7 +14,7 @@ struct Day
 {
 	explicit Day(int newDay)
 	{
-		if (newDay > 31 || newDay < 0) throw invalid_argument("Day value is invalid: " + to_string(newDay));
+		if (newDay > 31 || newDay < 1) throw invalid_argument("Day value is invalid: " + to_string(newDay));
 		else day = newDay;
 	}
 	int day;
@@ -123,6 +123,14 @@ bool operator<(const Date& lhs, const Date& rhs)
 	return lhs.day < rhs.day;
 }
 
+ostream& operator<<(ostream& out, const Date& date)
+{
+	out << setfill('0') << setw(4) << date.GetYear() << '-';
+	out << setfill('0') << setw(2) << date.GetMonth() << '-';
+	out << setfill('0') << setw(2) << date.GetDay();
+	return out;
+}
+
 class Database 
 {
 private:
@@ -180,11 +188,7 @@ public:
 			auto& events = dayAndEvents.at(date);
 			auto eventCount = events.size();
 			for (auto event = begin(events); event != end(events); ++event)
-			{
-				cout << *event;
-				if (event != end(events) - 1) cout << ' ';
-			}
-			cout << endl;
+				cout << *event << endl;
 			return static_cast<int>(eventCount);
 		}
 		return 0;
@@ -195,10 +199,8 @@ public:
 		{
 			for (auto& [date, events] : dayAndEvents)
 			{
-				PrintDate(date);
 				for (const auto& it : events)
-					cout << ' ' << it;
-				cout << endl;
+					cout << date << ' ' << it << endl;
 			}
 		}
 	}
@@ -217,54 +219,50 @@ int main()
 	Database db;
 	const set<string> commandSet = {"Add", "Find", "Del", "Print"};
 	string commandLine;
-	while (getline(cin, commandLine)) 
+	while (getline(cin, commandLine))
 	{
 		stringstream commandStream(commandLine);
 		string command;
 		commandStream >> command;
-		if (commandSet.count(command) < 1 && !command.empty())
+		try
 		{
-			cout << "Unknown command: " << command;
-			return 0;
+			if (commandSet.count(command) < 1 && !command.empty())
+			{
+				throw invalid_argument("Unknown command: " + command);
+			}
+			else if (command == "Add")
+			{
+				string dateStr;
+				string event;
+				commandStream >> dateStr;
+				commandStream >> event;
+				const Date date = Date::ParseDate(dateStr);
+				if (!event.empty()) db.AddEvent(date, event);
+			}
+			else if (command == "Del")
+			{
+				string dateStr;
+				string event;
+				commandStream >> dateStr;
+				const Date date = Date::ParseDate(dateStr);
+				if (!commandStream.eof()) commandStream >> event;
+				if (event.empty())
+					cout << "Deleted " << db.DeleteDate(date) << " events" << endl;
+				else db.DeleteEvent(date, event);
+			}
+			else if (command == "Find")
+			{
+				string dateStr;
+				commandStream >> dateStr;
+				const Date date = Date::ParseDate(dateStr);
+				db.Find(date);
+			}
+			else if (command == "Print") db.Print();
 		}
-		else
+		catch (invalid_argument& ex)
 		{
-			try
-			{
-				if (command == "Add")
-				{
-					string dateStr;
-					string event;
-					commandStream >> dateStr;
-					commandStream >> event;
-					const Date date = Date::ParseDate(dateStr);
-					if (!event.empty()) db.AddEvent(date, event);
-				}
-				else if (command == "Del")
-				{
-					string dateStr;
-					string event;
-					commandStream >> dateStr;
-					const Date date = Date::ParseDate(dateStr);
-					if (!commandStream.eof()) commandStream >> event;
-					if (event.empty())
-						cout << "Deleted " << db.DeleteDate(date) << " events" << endl;
-					else db.DeleteEvent(date, event);
-				}
-				else if (command == "Find")
-				{
-					string dateStr;
-					commandStream >> dateStr;
-					const Date date = Date::ParseDate(dateStr);
-					db.Find(date);
-				}
-				else if (command == "Print") db.Print();
-			}
-			catch (invalid_argument& ex)
-			{
-				cout << ex.what();
-				return 0;
-			}
+			cout << ex.what() << endl;
+			return 0;
 		}
 	}
 	return 0;
