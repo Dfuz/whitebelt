@@ -38,15 +38,14 @@ class Date
 {
 private:
 	int day = 0, month = 0, year = 0;
-	static inline int formatChecker(istream& in)
+	static inline void formatChecker(char dash, string date)
 	{
-		int dashCount = 0;
-		while (in.peek() == '-')
+		if (dash != '-')
 		{
-			in.ignore(1);
-			++dashCount;
+			stringstream stream;
+			stream << "Wrong date format: " << date;
+			throw invalid_argument(stream.str());
 		}
-		return dashCount;
 	}
 public:
 	Date(Day newDay, Month newMonth, Year newYear) 
@@ -67,31 +66,50 @@ public:
 	friend bool operator<(const Date&, const Date&);
 	friend istream& operator>>(istream& in, Date& date)
 	{
-		queue<int> dateValues;
 		string fullDate;
 		in >> fullDate;
 		stringstream tempStream;
 		tempStream << fullDate;
-		int dashCount = 1, tempValue = 0;
-		bool good = false;
-		while (tempStream >> tempValue)
+		int yearInt, monthInt, dayInt; char dash1, dash2;
+		if (tempStream >> yearInt >> dash1 >> monthInt >> dash2 >> dayInt && tempStream.peek() == EOF)
 		{
-			if (dashCount == 2) dateValues.push(-tempValue);
-			else if (dashCount == 1) 
-				dateValues.push(tempValue);
-			else throw invalid_argument(string("Wrong date format: ") + fullDate);
-			if (dateValues.size() == 3)
-			{
-				auto year = Year(dateValues.front()); dateValues.pop();
-				auto month = Month(dateValues.front()); dateValues.pop();
-				auto day = Day(dateValues.front()); dateValues.pop();
-				date = Date(day, month, year);
-				good = true;
-			}
-			dashCount = formatChecker(tempStream);
+			auto year = Year(yearInt);
+			formatChecker(dash1, fullDate);
+			auto month = Month(monthInt);
+			formatChecker(dash2, fullDate);
+			auto day = Day(dayInt); 
+			date = Date(day, month, year);
 		}
-		if ((tempStream.fail() && !tempStream.eof()) || !good) throw invalid_argument(string("Wrong date format: ") + fullDate);
+		else
+		{
+			stringstream stream;
+			stream << "Wrong date format: " << fullDate;
+			throw invalid_argument(stream.str());
+		}
         return in;
+	}
+	static Date ParseDate(string date)
+	{
+		stringstream stream(date);
+
+		int year;
+		stream >> year;
+		if (stream.peek() != '-')
+			throw invalid_argument("Wrong date format: " + date);
+
+		int month;
+		stream.ignore(1);
+		stream >> month;
+		if (stream.peek() != '-')
+			throw invalid_argument("Wrong date format: " + date);
+
+		int day;
+		stream.ignore(1);
+		stream >> day;
+		if (!stream.eof())
+			throw invalid_argument("Wrong date format: " + date);
+
+		return (Date(Day(day), Month(month), Year(year)));
 	}
 };
 
@@ -115,18 +133,26 @@ public:
 	}
 	bool DeleteEvent(const Date& date, const string& event)
 	{
-		auto& dayEvents = dayAndEvents[date];
-		auto founded = find(begin(dayEvents), end(dayEvents), event);
-		if (founded == end(dayEvents))
+		if (dayAndEvents.count(date) > 0)
 		{
-			cout << "Event not found" << endl;
-			return false;
+			auto& dayEvents = dayAndEvents.at(date);
+			auto founded = find(begin(dayEvents), end(dayEvents), event);
+			if (founded == end(dayEvents))
+			{
+				cout << "Event not found" << endl;
+				return false;
+			}
+			else
+			{
+				dayEvents.erase(founded);
+				cout << "Deleted successfully" << endl;
+				return true;
+			}
 		}
 		else
 		{
-			dayEvents.erase(founded); 
-			cout << "Deleted successfully" << endl;
-			return true;
+			cout << "Event not found" << endl;
+			return false;
 		}
 	}
 	int DeleteDate(const Date& date)
@@ -178,6 +204,8 @@ public:
 	}
 };
 
+//*********************************************
+//*************** MAIN ************************
 int main() 
 {
 	Database db;
@@ -199,31 +227,34 @@ int main()
 			{
 				if (command == "Add")
 				{
-					Date date;
+					string dateStr;
 					string event;
-					commandStream >> date;
+					commandStream >> dateStr;
 					commandStream >> event;
+					const Date date = Date::ParseDate(dateStr);
 					db.AddEvent(date, event);
 				}
 				else if (command == "Del")
 				{
-					Date date;
-					commandStream >> date;
+					string dateStr;
 					string event;
-					if (commandStream) commandStream >> event;
+					commandStream >> dateStr;
+					const Date date = Date::ParseDate(dateStr);
+					if (!commandStream.eof()) commandStream >> event;
 					if (event.empty())
 						cout << "Deleted " << db.DeleteDate(date) << " events" << endl;
 					else db.DeleteEvent(date, event);
 				}
 				else if (command == "Find")
 				{
-					Date date;
-					commandStream >> date;
+					string dateStr;
+					commandStream >> dateStr;
+					const Date date = Date::ParseDate(dateStr);
 					db.Find(date);
 				}
 				else if (command == "Print") db.Print();
 			}
-			catch (invalid_argument& ex)
+			catch (exception& ex)
 			{
 				cout << ex.what();
 				cout << endl;
