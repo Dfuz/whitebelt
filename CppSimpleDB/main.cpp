@@ -150,6 +150,7 @@ public:
 			else
 			{
 				dayEvents.erase(founded);
+				if (dayEvents.size() == 0) dayAndEvents.erase(date);
 				cout << "Deleted successfully" << endl;
 				return true;
 			}
@@ -223,8 +224,8 @@ int main()
 		commandStream >> command;
 		if (commandSet.count(command) < 1 && !command.empty())
 		{
-			cout << "Unknown command: " << command << endl;
-			continue;
+			cout << "Unknown command: " << command;
+			return 0;
 		}
 		else
 		{
@@ -259,10 +260,10 @@ int main()
 				}
 				else if (command == "Print") db.Print();
 			}
-			catch (exception& ex)
+			catch (invalid_argument& ex)
 			{
 				cout << ex.what();
-				cout << endl;
+				return 0;
 			}
 		}
 	}
