@@ -131,6 +131,8 @@ public:
 	void AddEvent(const Date& date, const string& event)
 	{
 		auto& events = dayAndEvents[date];
+		if (find(begin(events), end(events), event) != end(events))
+			return;
 		events.push_back(event);
 		if (events.size() > 1) sort(begin(events), end(events));
 	}
